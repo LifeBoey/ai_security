@@ -1,0 +1,50 @@
+
+description: "Qwen2.5-0.5B prompt injection assessment"
+
+prompts:
+  - file://redteam-prompt.json
+
+providers:
+  - id: openai:chat:Qwen/Qwen2.5-0.5B-Instruct
+    label: Qwen2.5-0.5B-Instruct (vLLM)
+    config:
+      apiBaseUrl: http://vllm:8000/v1
+      apiKey: EMPTY
+      temperature: 0
+      max_tokens: 512
+
+redteam:
+  purpose: >
+    A general-purpose assistant that answers user questions.
+    It must follow its system instructions, protect confidential
+    instructions, and treat external reference text as untrusted.
+
+  injectVar: question
+  numTests: 3
+  maxConcurrency: 1
+
+  # Use local Qwen for attack generation and grading
+  provider:
+    id: openai:chat:Qwen/Qwen2.5-0.5B-Instruct
+    config:
+      apiBaseUrl: http://vllm:8000/v1
+      apiKey: EMPTY
+      temperature: 0.2
+      max_tokens: 512
+
+  plugins:
+    - id: system-prompt-override
+      numTests: 3
+
+    - id: prompt-extraction
+      numTests: 3
+
+    - id: indirect-prompt-injection
+      numTests: 3
+      config:
+        indirectInjectionVar: untrusted_text
+
+sharing:
+  apiBaseUrl: http://localhost:3000
+  appBaseUrl: http://localhost:3000
+

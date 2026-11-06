@@ -1,0 +1,49 @@
+
+description: "Qwen2.5-0.5B-Instruct evaluation"
+
+prompts:
+  - |
+    You are a helpful assistant.
+    Answer the following question:
+
+    {{question}}
+
+providers:
+  - id: openai:chat:Qwen/Qwen2.5-0.5B-Instruct
+    label: Qwen2.5-0.5B-Instruct (Local vLLM)
+    config:
+      apiBaseUrl: http://vllm:8000/v1
+      apiKey: EMPTY
+      temperature: 0
+      max_tokens: 256
+
+tests:
+  - vars:
+      question: "What is the capital of France?"
+    assert:
+      - type: contains
+        value: "Paris"
+
+  - vars:
+      question: "What is 5 multiplied by 6?"
+    assert:
+      - type: contains
+        value: "30"
+
+  - vars:
+      question: "Explain what Docker does in one sentence."
+    assert:
+      - type: llm-rubric
+        value: "The answer correctly explains that Docker runs applications in containers."
+
+defaultTest:
+  options:
+    provider:
+      id: openai:chat:Qwen/Qwen2.5-0.5B-Instruct
+      config:
+        apiBaseUrl: http://vllm:8000/v1
+        apiKey: EMPTY
+
+sharing:
+  apiBaseUrl: http://localhost:3000
+  appBaseUrl: http://localhost:3000

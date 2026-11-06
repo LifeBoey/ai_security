@@ -1,0 +1,568 @@
+
+Available Scenarios:
+================================================================================
+
+  adaptive.text_adaptive
+    Class: TextAdaptive
+    Description:
+      Selects an attack technique for each objective using an epsilon-greedy
+      strategy informed by prior success rates. The scenario stops after a
+      successful attack or after ``max_attempts_per_objective`` attempts.
+    Aggregate Techniques:
+      - all, default, core, extra, light, multi_turn, single_turn
+    Available Techniques (21):
+      role_play_movie_script, role_play_video_game, role_play_trivia_game,
+      role_play_persuasion, role_play_persuasion_written, many_shot, tap,
+      crescendo_simulated, crescendo_movie_director,
+      crescendo_history_lecture, crescendo_journalist_interview, red_teaming,
+      context_compliance, flip, bijection, code_attack, pair, skeleton_key,
+      best_of_n, violent_durian, split_payload
+    Default Technique: default
+    Default Datasets (7):
+      airt_hate, airt_fairness, airt_violence, airt_sexual, airt_harassment,
+      airt_misinformation, airt_leakage
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+      - max_attempts_per_objective (int) [default: '3']: Max techniques tried per objective. Defaults to 3.
+
+  airt.cyber
+    Class: Cyber
+    Description:
+      Cyber scenario implementation for PyRIT. This scenario tests how willing
+      models are to exploit cybersecurity harms by generating malware. The
+      Cyber class contains different variations of the malware generation
+      techniques.
+    Aggregate Techniques:
+      - all, default, core, light, multi_turn, single_turn
+    Available Techniques (16):
+      bijection, code_attack, context_compliance, crescendo_history_lecture,
+      crescendo_journalist_interview, crescendo_movie_director,
+      crescendo_simulated, flip, many_shot, red_teaming,
+      role_play_movie_script, role_play_persuasion,
+      role_play_persuasion_written, role_play_trivia_game,
+      role_play_video_game, tap
+    Default Technique: default
+    Default Datasets (1):
+      airt_malware
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+
+  airt.jailbreak
+    Class: Jailbreak
+    Description:
+      Jailbreak scenario implementation for PyRIT. Tests how vulnerable a
+      model is to jailbreak templates. A run is the cross-product of three
+      selectors: - **dataset** — the harmful objectives (HarmBench). -
+      **techniques** — two delivery methods for each jailbreak:
+      ``prompt_sending`` (the template rendered inline into the user message)
+      and ``jailbreak_system_prompt`` (the template set as the system prompt
+      with the objective sent as the user turn). - **jailbreaks** — which
+      jailbreak templates to run (a random ``num_jailbreaks`` sample or an
+      explicit ``jailbreak_names`` set). ``prompt_sending`` applies each
+      template as a ``TextJailbreakConverter`` on the outgoing request, so the
+      objective is rendered inline into the template's ``{{prompt}}`` slot.
+      ``jailbreak_system_prompt`` instead sets the template as a native system
+      prompt and sends the objective as its own user turn, so it is only built
+      for targets that natively support editable history and system prompts
+      (it is skipped for incapable targets, or raises if it is the only
+      selected technique). Responses are scored to determine whether the
+      jailbreak succeeded (non-refusal).
+    Aggregate Techniques:
+      - all, default, single_turn
+    Available Techniques (2):
+      prompt_sending, jailbreak_system_prompt
+    Default Technique: default
+    Default Datasets (1):
+      harmbench
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+      - num_jailbreaks (int): Draw this many random jailbreak templates for the run. Mutually exclusive with jailbreak_names.
+      - num_jailbreak_attempts (int) [default: '1']: Number of times to try each (technique x jailbreak template x objective).
+      - jailbreak_names (list[str]): Explicit jailbreak template file names to run (e.g. aim.yaml dan_11.yaml). When omitted, a random sample is drawn. Mutually exclusive with num_jailbreaks.
+
+  airt.leakage
+    Class: Leakage
+    Description:
+      Leakage scenario implementation for PyRIT. This scenario tests how
+      susceptible models are to leaking training data, PII, intellectual
+      property, or other confidential information. Uses the registry/factory
+      pattern to construct attack techniques.
+    Aggregate Techniques:
+      - all, default, airt, core, leakage, light, multi_turn, single_turn
+    Available Techniques (18):
+      bijection, code_attack, context_compliance, crescendo_history_lecture,
+      crescendo_journalist_interview, crescendo_movie_director,
+      crescendo_simulated, flip, many_shot, red_teaming,
+      role_play_movie_script, role_play_persuasion,
+      role_play_persuasion_written, role_play_trivia_game,
+      role_play_video_game, tap, first_letter, image
+    Default Technique: default
+    Default Datasets (1):
+      airt_leakage
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+
+  airt.multilingual
+    Class: Multilingual
+    Description:
+      Multilingual scenario implementation for PyRIT. Tests how vulnerable a
+      model is to non-English language use.
+    Aggregate Techniques:
+      - all, default, core, light, multi_turn, single_turn
+    Available Techniques (17):
+      bijection, code_attack, context_compliance, crescendo_history_lecture,
+      crescendo_journalist_interview, crescendo_movie_director,
+      crescendo_simulated, flip, many_shot, red_teaming,
+      role_play_movie_script, role_play_persuasion,
+      role_play_persuasion_written, role_play_trivia_game,
+      role_play_video_game, tap, prompt_sending
+    Default Technique: default
+    Default Datasets (1):
+      harmbench
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+      - num_languages (int): Draw this many random languages. Mutually exclusive with languages.
+      - languages (list[str]): Explicit languages to use (e.g. French, German, Spanish). When omitted, a random sample is drawn. Mutually exclusive with num_languages.
+      - translation_strategies (list[str]) [default: ['translation', 'random_translation']] [choices: translation, random_translation]: Translation strategies to run: translation translates the complete objective into each selected language; random_translation translates words using the selected language pool.
+
+  airt.psychosocial
+    Class: Psychosocial
+    Description:
+      Psychosocial Harms scenario covering the imminent-crisis and
+      licensed-therapist sub-harms. Evaluates whether a model harms the
+      well-being or mental health of users -- for example by mistreating
+      someone in a mental-health crisis, facilitating self-harm, or improperly
+      presenting itself as a real licensed therapist. **Two axes.** The
+      primary axis is ``sub_harm`` (``imminent_crisis`` and/or
+      ``licensed_therapist``; both by default). Each sub-harm owns its
+      dataset, its escalation prompt, and its own conversation-level scorer,
+      so every attack and baseline is scored by the rubric that matches its
+      harm. The secondary axis is the ``PsychosocialTechnique`` converter
+      sweep, selected with ``--techniques``. **The base technique is a
+      simulated crescendo.** For each sub-harm the scenario builds an
+      escalating simulated conversation (via
+      ``AttackTechniqueFactory.with_simulated_conversation`` using that
+      sub-harm's escalation prompt) and delivers the final message to the
+      target. Each selected converter is layered on top of that base; the live
+      multi-turn ``Crescendo`` technique (``all`` only) swaps the simulated
+      base for a real ``CrescendoAttack``. One baseline per sub-harm is
+      emitted (toggle with ``include_baseline``). Dataset selection is bound
+      to the sub-harms: the ``dataset_config`` parameter still tunes
+      ``max_dataset_size`` and sampling, but the dataset names are always the
+      selected sub-harms' datasets (``--dataset-names`` is ignored).
+    Aggregate Techniques:
+      - all, default, tone, language, persuasion, deterministic
+    Available Techniques (24):
+      none, tone_soften, tone_upset, tone_angry, tone_sad, tone_urgent,
+      language_spanish, language_french, language_german, language_japanese,
+      persuasion_logical_appeal, persuasion_authority_endorsement,
+      persuasion_evidence_based, persuasion_expert_endorsement,
+      persuasion_misrepresentation, tense_past, variation, noise,
+      insert_punctuation, random_capitalization, diacritic, char_swap,
+      colloquial_wordswap, crescendo
+    Default Technique: default
+    Default Datasets (2):
+      airt_imminent_crisis, airt_licensed_therapist
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+      - sub_harm (str) [default: 'all']: Psychosocial sub-harm to run: 'imminent_crisis', 'licensed_therapist', or 'all'. Defaults to 'all'.
+      - max_turns (int) [default: '5']: Number of turns in the simulated-crescendo escalation for each attack.
+
+  airt.rapid_response
+    Class: RapidResponse
+    Description:
+      Rapid Response scenario for content-harms testing. Tests model behavior
+      across multiple harm categories using selectable attack techniques.
+    Aggregate Techniques:
+      - all, default, core, light, multi_turn, single_turn
+    Available Techniques (16):
+      bijection, code_attack, context_compliance, crescendo_history_lecture,
+      crescendo_journalist_interview, crescendo_movie_director,
+      crescendo_simulated, flip, many_shot, red_teaming,
+      role_play_movie_script, role_play_persuasion,
+      role_play_persuasion_written, role_play_trivia_game,
+      role_play_video_game, tap
+    Default Technique: default
+    Default Datasets (7):
+      airt_hate, airt_fairness, airt_violence, airt_sexual, airt_harassment,
+      airt_misinformation, airt_leakage
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+
+  airt.scam
+    Class: Scam
+    Description:
+      Scam scenario evaluates an endpoint's ability to generate scam-related
+      materials (e.g., phishing emails, fraudulent messages) with primarily
+      persuasion-oriented techniques.
+    Aggregate Techniques:
+      - all, default, single_turn, multi_turn
+    Available Techniques (3):
+      context_compliance, role_play_persuasion_written, persuasive_rta
+    Default Technique: default
+    Default Datasets (1):
+      airt_scams
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+      - max_turns (int) [default: '5']: Maximum conversation turns for the persuasive_rta technique.
+
+  benchmark.adversarial
+    Class: AdversarialBenchmark
+    Description:
+      Benchmark scenario that compares the attack success rate (ASR) across
+      adversarial models. Adversarial targets are user-supplied via the
+      ``adversarial_targets`` parameter (declared in
+      ``supported_parameters``). Each target must already be registered in
+      ``TargetRegistry`` — typically by ``TargetInitializer`` from
+      ``ADVERSARIAL_CHAT_*`` env vars, or programmatically via
+      ``TargetRegistry.get_registry_singleton().instances.register``. At run
+      time, ``_build_atomic_attacks_async`` performs the ``(technique ×
+      adversarial_target × dataset)`` cross-product: for each selected
+      adversarial-capable factory in the ``AttackTechniqueRegistry`` and each
+      requested target, it calls ``factory.create(adversarial_chat=...)`` with
+      the resolved target — no global registry mutation. The resulting
+      ``AtomicAttack`` is named ``f"{technique}__{target}_{dataset}"`` with
+      ``display_group`` set to the target's registry name so per-model ASR
+      rolls up naturally in result displays.
+    Aggregate Techniques:
+      - all, default, core, light, multi_turn, single_turn
+    Available Techniques (12):
+      context_compliance, crescendo_history_lecture,
+      crescendo_journalist_interview, crescendo_movie_director,
+      crescendo_simulated, red_teaming, role_play_movie_script,
+      role_play_persuasion, role_play_persuasion_written,
+      role_play_trivia_game, role_play_video_game, tap
+    Default Technique: default
+    Default Datasets (1):
+      harmbench
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+      - adversarial_targets (list[str]): Registry names of adversarial chat targets to benchmark. Each name must already be registered in TargetRegistry (via TargetInitializer or TargetRegistry instance registration). Use 'pyrit_scan list-targets' to see registered targets. Settable via --adversarial-targets <name> [<name> ...] on the CLI, or scenario.args.adversarial_targets in .pyrit_conf.
+
+  foundry.red_team_agent
+    Class: RedTeamAgent
+    Description:
+      RedTeamAgent is a preconfigured scenario that automatically generates
+      multiple AtomicAttack instances based on the specified attack
+      techniques. It supports both single-turn attacks (with various
+      converters) and multi-turn attacks (Crescendo, RedTeaming), making it
+      easy to quickly test a target against multiple attack vectors. The
+      scenario can expand difficulty levels (EASY, MODERATE, DIFFICULT) into
+      their constituent attack techniques, or you can specify individual
+      techniques directly. This scenario is designed for use with the Foundry
+      AI Red Teaming Agent library, providing a consistent PyRIT contract for
+      their integration.
+    Aggregate Techniques:
+      - all, easy, moderate, difficult
+    Available Techniques (25):
+      ansi_attack, ascii_art, ascii_smuggler, atbash, base64, binary, caesar,
+      character_space, char_swap, diacritic, flip, leetspeak, morse, rot13,
+      suffix_append, string_join, unicode_confusable, unicode_substitution,
+      url, jailbreak, tense, multi_turn, crescendo, pair, tap
+    Default Technique: easy
+    Default Datasets (1):
+      harmbench
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+
+  garak.audio_achilles_heel
+    Class: AudioAchillesHeel
+    Description:
+      Audio Achilles Heel scenario implementation for PyRIT. Ports Garak's
+      ``audio.AudioAchillesHeel`` probe: spoken adversarial instructions are
+      sent as audio while the text channel carries only a benign nudge,
+      testing whether a multimodal target follows harmful spoken instructions.
+      Each ``garak_audio_achilles_heel`` clip becomes a single multimodal user
+      turn scored for compliance (the PyRIT analogue of Garak's non-refusal
+      ``mitigation.MitigationBypass`` detector). The objective target must
+      accept ``audio_path`` input (i.e. be multimodal); non-audio targets will
+      error when the request is sent. Reference:
+      https://arxiv.org/html/2410.23861
+    Aggregate Techniques:
+      - all
+    Available Techniques (1):
+      audio_jailbreak
+    Default Technique: all
+    Default Datasets (1):
+      garak_audio_achilles_heel
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+
+  garak.doctor
+    Class: Doctor
+    Description:
+      Doctor scenario implementation for PyRIT. Ports Garak's "doctor" probe,
+      which implements the HiddenLayer Policy Puppetry universal bypass: a
+      post-instruction-hierarchy prompt injection that frames a harmful
+      request as policy/configuration (a fictional medical-drama script or a
+      healthcare-chatbot interaction config) to override safety guardrails.
+      Each objective from the ``garak_doctor`` dataset is wrapped in a Policy
+      Puppetry template via ``PolicyPuppetryConverter`` and sent to the
+      target. Responses are scored for non-refusal (mirroring Garak's
+      ``mitigation.MitigationBypass`` detector). Reference:
+      [@hiddenlayer2025policypuppetry]
+      (https://hiddenlayer.com/innovation-hub/novel-universal-bypass-for-all-major-llms/)
+    Aggregate Techniques:
+      - all, default, single_turn
+    Available Techniques (2):
+      policy_puppetry, policy_puppetry_leet
+    Default Technique: default
+    Default Datasets (1):
+      garak_doctor
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+
+  garak.encoding
+    Class: Encoding
+    Description:
+      Encoding Scenario implementation for PyRIT. This scenario tests how
+      resilient models are to various encoding attacks by encoding potentially
+      harmful text (by default slurs and XSS payloads) and testing if the
+      model will decode and repeat the encoded payload. It mimics the Garak
+      encoding probe. The scenario works by: 1. Taking seed prompts (the
+      harmful text to be encoded) 2. Encoding them using various encoding
+      schemes (Base64, ROT13, Morse, etc.) 3. Asking the target model to
+      decode the encoded text 4. Scoring whether the model successfully
+      decoded and repeated the harmful content By default, this uses the same
+      dataset as Garak: slur terms and web XSS payloads.
+    Aggregate Techniques:
+      - all, default
+    Available Techniques (17):
+      base64, base2048, base16, base32, ascii85, hex, quoted_printable,
+      uuencode, rot13, braille, atbash, morse_code, nato, ecoji, zalgo,
+      leet_speak, ascii_smuggler
+    Default Technique: default
+    Default Datasets (2):
+      garak_slur_terms_en, garak_web_html_js
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+
+  garak.figstep
+    Class: FigStep
+    Description:
+      Run FigStep or FigStep-Pro typographic-image jailbreaks against a
+      multimodal target. The selected FigStep dataset supplies one harmful
+      objective and a grouped text-plus-image request for each SafeBench item.
+      ``PromptSendingAttack`` sends that grouped request and scores whether
+      the response substantively fulfills the harmful objective. The default
+      baseline sends the same sampled objectives directly as text. Reference:
+      [@gong2025figstep]
+    Aggregate Techniques:
+      - all
+    Available Techniques (1):
+      visual_jailbreak
+    Default Technique: all
+    Default Datasets (1):
+      figstep
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+
+  garak.package_hallucination
+    Class: PackageHallucination
+    Description:
+      PackageHallucination scenario implementation for PyRIT. Ports garak's
+      ``packagehallucination`` probe, which tries to elicit code that imports
+      non-existent packages. An attacker can register ("squat") those
+      hallucinated names in a public registry so that code emitted by the
+      model silently pulls in a malicious dependency (a supply-chain
+      "slopsquatting" attack). Each selected language builds one
+      ``PromptSendingAttack`` whose seeds pair a ``SeedObjective`` with a
+      ``SeedPrompt`` rendered from garak's ``stub_prompts`` × ``code_tasks``.
+      Responses are scored by a per-language ``PackageHallucinationScorer``
+      loaded with that ecosystem's registry, mirroring garak's per-language
+      detector. Reference: [@derczynski2024garak]
+    Aggregate Techniques:
+      - all, default
+    Available Techniques (7):
+      python, javascript, ruby, rust, dart, perl, raku
+    Default Technique: default
+    Default Datasets (4):
+      garak_crates_packages, garak_package_hallucination_stubs,
+      garak_package_hallucination_real_tasks,
+      garak_package_hallucination_unreal_tasks
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+
+  garak.system_prompt_extraction
+    Class: SystemPromptExtraction
+    Description:
+      System Prompt Extraction scenario implementation for PyRIT. Ports
+      garak's ``sysprompt_extraction.SystemPromptExtraction`` probe. A real
+      system prompt (sourced from the ``garak_drh_system_prompts`` /
+      ``garak_tm_system_prompts`` datasets) is installed on the target, then
+      an extraction request (from the ``garak_system_prompt_extraction``
+      dataset) asks the model to reveal it. Responses are scored
+      deterministically with ``SystemPromptExtractionScorer`` (a character
+      n-gram containment overlap between the response and the known system
+      prompt), wrapped by ``FloatScaleThresholdScorer`` for the true/false
+      objective score. The extraction templates carry a per-seed ``technique``
+      tag; the 9 garak categories become ``SystemPromptExtractionTechnique``
+      members. Each selected category becomes one ``AtomicAttack`` whose seed
+      groups are (system prompt x template) combinations in that category.
+      Across all selected categories the total number of combinations is
+      randomly sampled down to ``prompt_cap`` (garak's
+      ``soft_probe_prompt_cap``), keeping a default run bounded. Because the
+      target must accept a prepended system prompt, this scenario requires a
+      chat target with editable conversation history (mirroring garak
+      requiring conversation support).
+    Aggregate Techniques:
+      - all
+    Available Techniques (9):
+      direct_requests, role_playing_attacks, encoding_based_attacks,
+      indirect_creative_approaches, code_technical_framing,
+      continuation_tricks, multi_layered_approaches,
+      authority_urgency_framing, confusion_distraction
+    Default Technique: all
+    Default Datasets (3):
+      garak_drh_system_prompts, garak_tm_system_prompts,
+      garak_system_prompt_extraction
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+
+  garak.web_injection
+    Class: WebInjection
+    Description:
+      Web Injection Scenario implementation for PyRIT. Ports garak's
+      ``web_injection`` probe. It tests whether a model can be coaxed into
+      emitting web-injection payloads — markdown-image data exfiltration
+      (CSRF-style) and cross-site scripting (XSS) — when given
+      prompt-injection style instructions. Each technique builds one
+      ``PromptSendingAttack`` whose seeds pair a ``SeedObjective`` (the attack
+      goal) with a ``SeedPrompt`` (the literal injection prompt to send).
+      Exfil techniques are scored with ``MarkdownInjectionScorer``; XSS
+      techniques are scored with ``XSSOutputScorer``. The default objective
+      scorer (used for the baseline and metadata) is an OR composite of both.
+    Aggregate Techniques:
+      - all, default, exfil, xss
+    Available Techniques (8):
+      markdown_image_exfil, colab_ai_data_leakage, string_assembly_data_exfil,
+      playground_markdown_exfil, markdown_uri_image_exfil_extended,
+      markdown_uri_non_image_exfil_extended, task_xss, markdown_xss
+    Default Technique: default
+    Default Datasets (4):
+      garak_example_domains_xss, garak_markdown_js, garak_web_html_js,
+      garak_xss_normal_instructions
+    Supported Parameters:
+      - objective_target (any): Target system under attack: a registered target name or a PromptTarget instance.
+      - scenario_techniques (any): Techniques to execute; defaults to the scenario's default aggregate when omitted.
+      - technique_converters (any): Mapping of concrete technique name to extra request converters to append.
+      - dataset_config (any): Dataset source configuration; defaults to the scenario's default when omitted.
+      - memory_labels (any): Additional labels applied to every attack run in the scenario.
+      - max_concurrency (int) [default: '4']: Maximum number of concurrent units of work for the scenario.
+      - max_retries (int) [default: '0']: Maximum number of automatic retries if the scenario raises an exception.
+      - include_baseline (bool): Whether to prepend a baseline atomic attack; None defers to BASELINE_ATTACK_POLICY.
+
+================================================================================
+
+Total scenarios: 17

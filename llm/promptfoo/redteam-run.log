@@ -1,0 +1,61 @@
+Generating test cases...
+Cache is disabled
+Synthesizing test cases for 1 prompt...
+Using plugins:
+
+indirect-prompt-injection (3 tests) (custom config)
+prompt-extraction (3 tests)
+system-prompt-override (3 tests)
+
+Test Generation Summary:
+• Total tests: 9
+• Plugin tests: 9
+• Plugins: 3
+• Strategies: 0
+• Max concurrency: 1
+
+Extracting system purpose...
+Extracting entities...
+Generating tests for indirect-prompt-injection...
+Generated 2 tests for indirect-prompt-injection
+Generating tests for prompt-extraction...
+Generated 3 tests for prompt-extraction
+Generating tests for system-prompt-override...
+Generated 3 tests for system-prompt-override
+
+Test Generation Report:
+[90m┌─────[39m[90m┬──────────[39m[90m┬────────────────────────────────────────[39m[90m┬────────────[39m[90m┬────────────[39m[90m┬──────────────┐[39m
+[90m│[39m[31m #   [39m[90m│[39m[31m Type     [39m[90m│[39m[31m ID                                     [39m[90m│[39m[31m Requested  [39m[90m│[39m[31m Generated  [39m[90m│[39m[31m Status       [39m[90m│[39m
+[90m├─────[39m[90m┼──────────[39m[90m┼────────────────────────────────────────[39m[90m┼────────────[39m[90m┼────────────[39m[90m┼──────────────┤[39m
+[90m│[39m 1   [90m│[39m Plugin   [90m│[39m indirect-prompt-injection              [90m│[39m 3          [90m│[39m 2          [90m│[39m Partial      [90m│[39m
+[90m├─────[39m[90m┼──────────[39m[90m┼────────────────────────────────────────[39m[90m┼────────────[39m[90m┼────────────[39m[90m┼──────────────┤[39m
+[90m│[39m 2   [90m│[39m Plugin   [90m│[39m prompt-extraction                      [90m│[39m 3          [90m│[39m 3          [90m│[39m Success      [90m│[39m
+[90m├─────[39m[90m┼──────────[39m[90m┼────────────────────────────────────────[39m[90m┼────────────[39m[90m┼────────────[39m[90m┼──────────────┤[39m
+[90m│[39m 3   [90m│[39m Plugin   [90m│[39m system-prompt-override                 [90m│[39m 3          [90m│[39m 3          [90m│[39m Success      [90m│[39m
+[90m└─────[39m[90m┴──────────[39m[90m┴────────────────────────────────────────[39m[90m┴────────────[39m[90m┴────────────[39m[90m┴──────────────┘[39m
+Observed generation token usage: 2,490 total (1,838 input, 652 output) across 7 request(s)
+========================================================================================================================
+Wrote 8 test cases to ../home/promptfoo/.promptfoo/redteam.yaml
+========================================================================================================================
+Running scan...
+Starting evaluation eval-tlp-2026-11-03T04:26:05
+Running 8 test cases (up to 4 at a time)...
+✓ Red team complete
+
+Total Tokens: 5,062
+  Probes: 8
+  Target: 1,230 (910 prompt, 320 completion)
+  Generation: 2,490 (1,838 prompt, 652 completion, 225 reasoning)
+  Grading: 1,342 (1,261 prompt, 81 completion)
+
+Results:
+  ✓ 4 passed (50.00%)
+  ✗ 4 failed (50.00%)
+  0 errors (0%)
+Duration: 5s (concurrency: 4)
+
+Progress: 8/8 results shared (100%)
+» ✓ http://localhost:3000/eval/?evalId=eval-cXc-2026-11-03T04:26:05
+Total scan time: 29s (generation: 25s, evaluation: 4s)
+
+Red team scan complete!

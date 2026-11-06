@@ -1,0 +1,37 @@
+docker network create llmnet
+
+docker pull vllm/vllm-openai:v0.11.0
+docker volume create hf_cache
+
+docker run -d \
+  --name vllm \
+  --gpus all \
+  -p 8000:8000 \
+  -v hf_cache:/root/.cache/huggingface \
+  --ipc=host \
+  --network llmnet \
+  vllm/vllm-openai:v0.11.0 \
+  --model Qwen/Qwen2.5-0.5B-Instruct \
+  --max-model-len 4096 \
+  --gpu-memory-utilization 0.5
+
+docker pull ghcr.io/promptfoo/promptfoo:0.125.1
+docker volume create promptfoo_data
+docker run -d \
+  --name promptfoo \
+  -p 3000:3000 \
+  -v promptfoo_data:/home/promptfoo/.promptfoo \
+  --network llmnet \
+  -e PROMPTFOO_REMOTE_API_BASE_URL=http://localhost:3000 \
+  -e PROMPTFOO_REMOTE_APP_BASE_URL=http://localhost:3000 \
+  ghcr.io/promptfoo/promptfoo:0.125.1
+
+promptfooconfig.yaml create
+docker cp promptfooconfig.yaml promptfoo:/home/promptfoo/.promptfoo/promptfooconfig.yaml
+docker exec -it promptfoo \
+  promptfoo eval \
+  -c /home/promptfoo/.promptfoo/promptfooconfig.yaml \
+docker exec -it promptfoo promptfoo share
+
+docker exec promptfoo sh -c \
+  'export PROMPTFOO_REMOTE_API_BASE_URL=http://localhost:3000 && export PROMPTFOO_REMOTE_APP_BASE_URL=http://localhost:3000 && promptfoo eval -c /home/promptfoo/.promptfoo/promptfooconfig.yaml'

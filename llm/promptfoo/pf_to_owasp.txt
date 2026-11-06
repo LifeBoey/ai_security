@@ -1,0 +1,69 @@
+01. Prompt Injection
+Indirect Prompt Injection
+System Prompt Disclosure
+ASCII Smuggling
+
+02. Sensitive Information Disclosure
+PII via API/Database
+PII via Direct Exposure
+PII via Session Data
+PII via Social Engineering
+Privacy Violation
+Cross-Session Data Leakage
+System Prompt Disclosure
+
+03. Supply Chain
+[No Plugins]
+
+04. Data and Model Poisoning
+Unauthorized Advice
+Disinformation Campaigns
+Hate Speech
+Age Bias
+Disability Bias
+Gender Bias
+Race Bias
+Extremist Content
+
+05. Improper Output Handling
+Command Injection
+SQL Injection
+SSRF Vulnerability
+Debug Interface Exposure
+
+06. Excessive Agency
+RBAC Implementation
+Function-Level Authorization Bypass
+Object-Level Authorization Bypass
+Command Injection
+SQL Injection
+SSRF Vulnerability
+Excessive Agency
+
+07. System Prompt Leakage
+RBAC Implementation
+Privacy Violation
+PII via API/Database
+PII via Direct Exposure
+PII via Session Data
+PII via Social Engineering
+System Prompt Disclosure
+
+08. Vector and Embedding Weaknesses
+Privacy Violation
+PII via API/Database
+PII via Direct Exposure
+PII via Session Data
+PII via Social Engineering
+Cross-Session Data Leakage
+
+09. Misinformation
+Hallucination
+Unauthorized Advice
+Disinformation Campaigns
+Overreliance
+
+10. Unbounded Consumption
+Divergent Repetition
+Reasoning DoS
+Not Tested
